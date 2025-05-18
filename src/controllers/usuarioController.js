@@ -1,4 +1,4 @@
-const e = require('express');
+const express = require('express');
 const db = require('../config/db')
 
 const UsuarioController = {
