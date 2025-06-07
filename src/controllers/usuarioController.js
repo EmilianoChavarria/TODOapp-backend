@@ -1,6 +1,6 @@
 const express = require('express');
+const Joi = require('joi');
 const db = require('../config/db');
-const e = require('express');
 
 const UsuarioController = {
   getAll: async (req, res) => {
@@ -13,14 +13,46 @@ const UsuarioController = {
     }
   },
   save: async (req, res) => {
+    const schemaUsuario = Joi.object({
+      nombre: Joi.string().max(100).required(),
+      email: Joi.string().email().max(100).required(),
+      contraseña: Joi.string().min(6).max(100).required(), // clave original
+      rol: Joi.string().valid('admin', 'usuario').default('usuario')
+    });
+  
+    const { error, value } = schemaUsuario.validate(req.body);
+  
+    if (error) {
+      return res.status(400).json({
+        error: 'Datos inválidos',
+        detalles: error.details.map(d => d.message)
+      });
+    }
+  
     try {
-      const [id] = await db('usuarios').insert(req.body);
+      const existe = await db('usuarios').where({ email: value.email }).first();
+      if (existe) {
+        return res.status(409).json({ error: 'El email ya está registrado' });
+      }
+  
+      const contraseña_hash = await bcrypt.hash(value.contraseña, 10);
+  
+      const [id] = await db('usuarios').insert({
+        nombre: value.nombre,
+        email: value.email,
+        contraseña_hash,
+        rol: value.rol
+      });
+  
       const nuevoUsuario = await db('usuarios').where({ id }).first();
+  
+      delete nuevoUsuario.contraseña_hash;
       res.status(201).json(nuevoUsuario);
-    } catch (error) {
+  
+    } catch (err) {
       res.status(400).json({
         error: 'Error al crear usuario',
-        detalles: error.message
+        detalles: err.message
       });
     }
   },
