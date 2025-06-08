@@ -1,6 +1,8 @@
 const express = require('express');
 const Joi = require('joi');
 const db = require('../config/db');
+const bcrypt = require('bcryptjs');
+
 
 const UsuarioController = {
   getAll: async (req, res) => {
