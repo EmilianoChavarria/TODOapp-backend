@@ -29,8 +29,8 @@ const ActividadesController = {
             descripcion: Joi.string().allow('').required(),
             fecha_creacion: Joi.date().required(),
             fecha_vencimiento: Joi.date().required(),
-            prioridad: Joi.string().valid('baja', 'media', 'alta', 'urgente').required(),
-            estado: Joi.string().valid('pendiente', 'en_progreso', 'completada', 'cancelada').required(),
+            prioridad: Joi.string().valid('baja', 'media', 'alta').required(),
+            estado: Joi.string().valid('en_progreso', 'completada').required(),
             usuario_id: Joi.number().required(),
             categoria_id: Joi.number().required(),
         });
