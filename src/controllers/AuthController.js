@@ -1,6 +1,5 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const AuthController = {
     login: async (req, res) => {
@@ -21,10 +20,8 @@ const AuthController = {
                 return res.status(401).json({ error: 'Contraseña incorrecta' });
             }
 
-            // Puedes guardar solo el ID y correo si quieres mantenerlo simple
-            const token = jwt.sign({ id: usuario.id, correo: usuario.correo }, 'secreto', { expiresIn: '1d' });
-
-            res.status(200).json({ mensaje: 'Login exitoso', token, usuario });
+            
+            res.status(200).json({ mensaje: 'Login exitoso'});
         } catch (error) {
             res.status(500).json({ error: 'Error en el login', detalles: error.message });
         }
