@@ -10,6 +10,35 @@ const ActividadesController = {
             res.status(500).json({ error: error.message });
         }
     },
+    findByUser: async (req, res) => {
+        try {
+            const { usuarioId } = req.params;
+            const tareas = await db('tareas').where({ usuario_id: usuarioId });
+    
+            if (tareas.length === 0) {
+                return res.status(404).json({ mensaje: 'No se encontraron tareas para este usuario' });
+            }
+    
+            res.status(200).json(tareas);
+        } catch (error) {
+            res.status(500).json({ error: 'Error al obtener tareas por usuario', detalles: error.message });
+        }
+    },
+    findByCategoria: async (req, res) => {
+        try {
+            const { categoriaId } = req.params;
+            const tareas = await db('tareas').where({ categoria_id: categoriaId });
+    
+            if (tareas.length === 0) {
+                return res.status(404).json({ mensaje: 'No se encontraron tareas para esta categoría' });
+            }
+    
+            res.status(200).json(tareas);
+        } catch (error) {
+            res.status(500).json({ error: 'Error al obtener tareas por categoría', detalles: error.message });
+        }
+    },
+    
 
     findOne: async (req, res) => {
         try {
@@ -30,7 +59,7 @@ const ActividadesController = {
             fecha_creacion: Joi.date().required(),
             fecha_vencimiento: Joi.date().required(),
             prioridad: Joi.string().valid('baja', 'media', 'alta').required(),
-            estado: Joi.string().valid('en_progreso', 'completada').required(),
+            estado: Joi.string().valid('pendiente', 'completada').required(),
             usuario_id: Joi.number().required(),
             categoria_id: Joi.number().required(),
         });

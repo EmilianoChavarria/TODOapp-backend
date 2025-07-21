@@ -4,6 +4,7 @@ const CategoriaController = require('../controllers/CategoriasController');
 
 // Rutas 
 router.get('/', CategoriaController.getAll);
+router.get('/usuario/:usuarioId', CategoriaController.getByUser);
 router.post('/', CategoriaController.save);
 router.put('/:id', CategoriaController.update); 
 router.delete('/:id', CategoriaController.delete);

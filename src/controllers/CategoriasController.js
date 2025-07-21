@@ -24,12 +24,30 @@ const CategoriasController = {
             res.status(500).json({ error: 'Error al buscar al usuario', detalles: error.message });
         }
     },
+    getByUser: async (req, res) => {
+        try {
+            const { usuarioId } = req.params;
+            const categorias = await db('categorias').where({ usuario_id: usuarioId });
+    
+            if (categorias.length === 0) {
+                return res.status(404).json({ mensaje: 'No se encontraron categorías para este usuario' });
+            }
+    
+            res.status(200).json(categorias);
+        } catch (error) {
+            res.status(500).json({
+                error: 'Error al obtener las categorías por usuario',
+                detalles: error.message
+            });
+        }
+    },
+    
     save: async (req, res) => {
         const schemaCategoria = Joi.object({
-            nombre: Joi.string.max(100).required(),
-            descripcion: Joi.string.max(255).required(),
-            color: Joi.string.max(10).required(),
-            usuarioId: Joi.number.required()
+            nombre: Joi.string().max(100).required(),
+            descripcion: Joi.string().max(255).required(),
+            color: Joi.string().max(10).required(),
+            usuarioId: Joi.number().required()
         })
 
         const { error, value } = schemaCategoria.validate(req.body);
@@ -50,7 +68,7 @@ const CategoriasController = {
                 nombre: value.nombre,
                 descripcion: value.descripcion,
                 color: value.color,
-                usuarioId: value.usuarioId,
+                usuario_id: value.usuarioId,
             })
 
             const nuevaCategoria = await db('categorias').where({ id }).first();
