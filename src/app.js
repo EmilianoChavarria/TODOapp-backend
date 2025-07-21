@@ -9,6 +9,7 @@ app.use(express.json());
 // Rutas
 app.use('/api/usuarios', require('./routes/usuarios'));
 app.use('/api/categorias', require('./routes/categorias'));
+app.use('/api/actividades', require('./routes/actividades'));
 
 // Manejador de errores
 app.use((err, req, res, next) => {

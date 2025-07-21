@@ -110,7 +110,27 @@ const CategoriasController = {
                 detalles: error.message
             });
         }
+    },
+    delete: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const existe = await db('categorias').where({ id }).first();
+    
+            if (!existe) {
+                return res.status(404).json({ error: 'Categoría no encontrada' });
+            }
+    
+            await db('categorias').where({ id }).del();
+    
+            res.status(200).json({ mensaje: 'Categoría eliminada correctamente' });
+        } catch (error) {
+            res.status(500).json({
+                error: 'Error al eliminar la categoría',
+                detalles: error.message
+            });
+        }
     }
+    
     
 }
 
