@@ -38,6 +38,23 @@ const ActividadesController = {
             res.status(500).json({ error: 'Error al obtener tareas por categoría', detalles: error.message });
         }
     },
+    findToday: async (req, res) => {
+        try {
+            const hoy = new Date().toISOString().split('T')[0]; // Formato 'YYYY-MM-DD'
+            
+            const tareas = await db('tareas')
+                .whereRaw('DATE(fecha_vencimiento) = ?', [hoy])
+                .orWhereRaw('DATE(fecha_creacion) = ?', [hoy]);
+    
+            if (tareas.length === 0) {
+                return res.status(404).json({ mensaje: 'No hay tareas para hoy' });
+            }
+    
+            res.status(200).json(tareas);
+        } catch (error) {
+            res.status(500).json({ error: 'Error al obtener tareas de hoy', detalles: error.message });
+        }
+    },
     
 
     findOne: async (req, res) => {
