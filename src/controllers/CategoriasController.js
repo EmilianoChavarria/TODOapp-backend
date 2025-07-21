@@ -43,7 +43,7 @@ const CategoriasController = {
         try {
             const existe = await db('categorias').where({ nombre: value.nombre }).first()
             if (existe) {
-                return res.status(409).json({ error: 'El email ya está registrado' })
+                return res.status(409).json({ error: 'La categoría ya está registrada' })
             }
 
             const [id] = await db('categorias').insert({
@@ -66,7 +66,52 @@ const CategoriasController = {
             })
         }
 
+    },
+    update: async (req, res) => {
+        const schemaCategoria = Joi.object({
+            nombre: Joi.string().max(100).required(),
+            descripcion: Joi.string().max(255).required(),
+            color: Joi.string().max(10).required(),
+            usuarioId: Joi.number().required()
+        });
+    
+        const { error, value } = schemaCategoria.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                error: 'Datos inválidos',
+                detalles: error.details.map(d => d.message)
+            });
+        }
+    
+        try {
+            const { id } = req.params;
+            const existe = await db('categorias').where({ id }).first();
+            if (!existe) {
+                return res.status(404).json({ error: 'Categoría no encontrada' });
+            }
+    
+            await db('categorias').where({ id }).update({
+                nombre: value.nombre,
+                descripcion: value.descripcion,
+                color: value.color,
+                usuarioId: value.usuarioId
+            });
+    
+            const actualizada = await db('categorias').where({ id }).first();
+    
+            res.status(200).json({
+                mensaje: 'Categoría actualizada correctamente',
+                categoria: actualizada
+            });
+    
+        } catch (error) {
+            res.status(500).json({
+                error: 'Error al actualizar la categoría',
+                detalles: error.message
+            });
+        }
     }
+    
 }
 
 module.exports = CategoriasController;

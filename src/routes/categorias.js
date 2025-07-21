@@ -5,5 +5,6 @@ const CategoriaController = require('../controllers/CategoriasController');
 // Rutas 
 router.get('/', CategoriaController.getAll);
 router.post('/save', CategoriaController.save);
+router.put('/:id', CategoriaController.update);
 
 module.exports = router;
