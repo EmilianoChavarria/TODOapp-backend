@@ -4,6 +4,9 @@ const UsuarioController = require('../controllers/usuarioController');
 
 // Rutas 
 router.get('/', UsuarioController.getAll);
-router.post('/save', UsuarioController.save);
+router.get('/:id', UsuarioController.findOne);
+router.post('/', UsuarioController.save);
+router.put('/update/:id', UsuarioController.update);
+router.delete('/delete/:id', UsuarioController.delete);
 
 module.exports = router;

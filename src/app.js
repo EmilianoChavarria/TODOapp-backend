@@ -8,12 +8,16 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/usuarios', require('./routes/usuarios'));
+app.use('/api/categorias', require('./routes/categorias'));
+app.use('/api/actividades', require('./routes/actividades'));
+app.use('/api/subtareas', require('./routes/subtareas'));
+app.use('/api/auth', require('./routes/auth'));
 
 // Manejador de errores
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Algo salió mal!' });
-});
+}); 
 
 
 const PORT = process.env.PORT || 3000;
