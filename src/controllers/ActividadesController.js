@@ -153,7 +153,7 @@ const ActividadesController = {
             res.status(500).json({ error: error.message });
         }
     },
-    completeTask: async (req, res) => {
+    toggleTaskState: async (req, res) => {
         try {
             const { id } = req.params;
     
@@ -163,18 +163,21 @@ const ActividadesController = {
                 return res.status(404).json({ error: 'Tarea no encontrada' });
             }
     
-            await db('tareas').where({ id }).update({ estado: 'completada' });
+            const nuevoEstado = tarea.estado === 'completada' ? 'pendiente' : 'completada';
     
-            const tareaCompletada = await db('tareas').where({ id }).first();
+            await db('tareas').where({ id }).update({ estado: nuevoEstado });
+    
+            const tareaActualizada = await db('tareas').where({ id }).first();
     
             res.status(200).json({
-                mensaje: 'Tarea marcada como completada',
-                tarea: tareaCompletada
+                mensaje: `Tarea marcada como ${nuevoEstado}`,
+                tarea: tareaActualizada
             });
         } catch (error) {
-            res.status(500).json({ error: 'Error al completar la tarea', detalles: error.message });
+            res.status(500).json({ error: 'Error al alternar el estado de la tarea', detalles: error.message });
         }
     }
+    
     
 };
 

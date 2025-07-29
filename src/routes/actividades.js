@@ -10,7 +10,7 @@ router.get('/:id', ActividadesController.findOne);
 router.post('/', ActividadesController.save);
 router.put('/:id', ActividadesController.update);
 router.delete('/:id', ActividadesController.delete);
-router.put('/:id/completar', ActividadesController.completeTask);
+router.put('/:id/toggle', ActividadesController.toggleTaskState);
 
 
 module.exports = router;
