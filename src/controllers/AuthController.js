@@ -18,10 +18,8 @@ const AuthController = {
 
             const match = await bcrypt.compare(contraseña, usuario.contraseña_hash);
             if (!match) {
-                return res.status(401).json({ error: 'Contraseña incorrecta' });
+                return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
             }
-
-            
             res.status(200).json({ mensaje: 'Login exitoso', data: usuario});
         } catch (error) {
             res.status(500).json({ error: 'Error en el login', detalles: error.message });

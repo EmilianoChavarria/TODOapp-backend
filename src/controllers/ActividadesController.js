@@ -107,8 +107,8 @@ const ActividadesController = {
             descripcion: Joi.string().allow('').required(),
             fecha_creacion: Joi.date().required(),
             fecha_vencimiento: Joi.date().required(),
-            prioridad: Joi.string().valid('baja', 'media', 'alta', 'urgente').required(),
-            estado: Joi.string().valid('pendiente', 'en_progreso', 'completada', 'cancelada').required(),
+            prioridad: Joi.string().valid('baja', 'media', 'alta').required(),
+            estado: Joi.string().valid('pendiente', 'completada').required(),
             usuario_id: Joi.number().required(),
             categoria_id: Joi.number().required(),
         });
@@ -152,7 +152,30 @@ const ActividadesController = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    },
+    completeTask: async (req, res) => {
+        try {
+            const { id } = req.params;
+    
+            const tarea = await db('tareas').where({ id }).first();
+    
+            if (!tarea) {
+                return res.status(404).json({ error: 'Tarea no encontrada' });
+            }
+    
+            await db('tareas').where({ id }).update({ estado: 'completada' });
+    
+            const tareaCompletada = await db('tareas').where({ id }).first();
+    
+            res.status(200).json({
+                mensaje: 'Tarea marcada como completada',
+                tarea: tareaCompletada
+            });
+        } catch (error) {
+            res.status(500).json({ error: 'Error al completar la tarea', detalles: error.message });
+        }
     }
+    
 };
 
 module.exports = ActividadesController;
