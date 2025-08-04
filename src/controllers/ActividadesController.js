@@ -72,7 +72,7 @@ const ActividadesController = {
     save: async (req, res) => {
         const schema = Joi.object({
             titulo: Joi.string().max(100).required(),
-            descripcion: Joi.string().allow('').required(),
+            descripcion: Joi.string().allow(''),
             fecha_creacion: Joi.date().required(),
             fecha_vencimiento: Joi.date().required(),
             prioridad: Joi.string().valid('baja', 'media', 'alta').required(),

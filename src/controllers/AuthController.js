@@ -20,7 +20,7 @@ const AuthController = {
             if (!match) {
                 return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
             }
-            res.status(200).json({ mensaje: 'Login exitoso', data: usuario});
+            res.status(200).json({ mensaje: 'Login exitoso', data: usuario, success: true });
         } catch (error) {
             res.status(500).json({ error: 'Error en el login', detalles: error.message });
         }
