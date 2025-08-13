@@ -40,11 +40,20 @@ const ActividadesController = {
     },
     findToday: async (req, res) => {
         try {
-            const hoy = new Date().toISOString().split('T')[0]; // Formato 'YYYY-MM-DD'
-            
+            const hoy = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+            const { usuarioId } = req.params;
+    
             const tareas = await db('tareas')
-                .whereRaw('DATE(fecha_vencimiento) = ?', [hoy])
-                .orWhereRaw('DATE(fecha_creacion) = ?', [hoy]);
+                .join('categorias', 'tareas.categoria_id', 'categorias.id')
+                .select(
+                    'tareas.*',
+                    'categorias.color as color' // Asegúrate que tu tabla categorias tenga este campo
+                )
+                .where({ 'tareas.usuario_id': usuarioId })
+                .andWhere(function() {
+                    this.whereRaw('DATE(tareas.fecha_vencimiento) = ?', [hoy])
+                      .orWhereRaw('DATE(tareas.fecha_creacion) = ?', [hoy]);
+                });
     
             if (tareas.length === 0) {
                 return res.status(404).json({ mensaje: 'No hay tareas para hoy' });
@@ -52,9 +61,13 @@ const ActividadesController = {
     
             res.status(200).json(tareas);
         } catch (error) {
-            res.status(500).json({ error: 'Error al obtener tareas de hoy', detalles: error.message });
+            res.status(500).json({ 
+                error: 'Error al obtener tareas de hoy', 
+                detalles: error.message 
+            });
         }
     },
+    
     
 
     findOne: async (req, res) => {
@@ -66,6 +79,31 @@ const ActividadesController = {
             res.status(200).json(tarea);
         } catch (error) {
             res.status(500).json({ error: error.message });
+        }
+    },
+    findCompletedByUser: async (req, res) => {
+        try {
+            const { usuarioId } = req.params; // Obtener el ID del usuario desde los parámetros
+    
+            // Filtrar tareas completadas del usuario específico
+            const tareasCompletadas = await db('tareas')
+                .where({ 
+                    usuario_id: usuarioId,
+                    estado: 'completada' 
+                });
+    
+            if (tareasCompletadas.length === 0) {
+                return res.status(404).json({ 
+                    mensaje: 'El usuario no tiene tareas completadas' 
+                });
+            }
+    
+            res.status(200).json(tareasCompletadas);
+        } catch (error) {
+            res.status(500).json({ 
+                error: 'Error al obtener tareas completadas', 
+                detalles: error.message 
+            });
         }
     },
 

@@ -54,7 +54,7 @@ const CategoriasController = {
     save: async (req, res) => {
         const schemaCategoria = Joi.object({
             nombre: Joi.string().max(100).required(),
-            descripcion: Joi.string().max(255).required(),
+            descripcion: Joi.string().max(255),
             color: Joi.string().max(10).required(),
             usuarioId: Joi.number().required()
         })
