@@ -72,7 +72,7 @@ const ActividadesController = {
     save: async (req, res) => {
         const schema = Joi.object({
             titulo: Joi.string().max(100).required(),
-            descripcion: Joi.string().allow('').required(),
+            descripcion: Joi.string().allow(''),
             fecha_creacion: Joi.date().required(),
             fecha_vencimiento: Joi.date().required(),
             prioridad: Joi.string().valid('baja', 'media', 'alta').required(),
@@ -107,8 +107,8 @@ const ActividadesController = {
             descripcion: Joi.string().allow('').required(),
             fecha_creacion: Joi.date().required(),
             fecha_vencimiento: Joi.date().required(),
-            prioridad: Joi.string().valid('baja', 'media', 'alta', 'urgente').required(),
-            estado: Joi.string().valid('pendiente', 'en_progreso', 'completada', 'cancelada').required(),
+            prioridad: Joi.string().valid('baja', 'media', 'alta').required(),
+            estado: Joi.string().valid('pendiente', 'completada').required(),
             usuario_id: Joi.number().required(),
             categoria_id: Joi.number().required(),
         });
@@ -152,7 +152,33 @@ const ActividadesController = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    },
+    toggleTaskState: async (req, res) => {
+        try {
+            const { id } = req.params;
+    
+            const tarea = await db('tareas').where({ id }).first();
+    
+            if (!tarea) {
+                return res.status(404).json({ error: 'Tarea no encontrada' });
+            }
+    
+            const nuevoEstado = tarea.estado === 'completada' ? 'pendiente' : 'completada';
+    
+            await db('tareas').where({ id }).update({ estado: nuevoEstado });
+    
+            const tareaActualizada = await db('tareas').where({ id }).first();
+    
+            res.status(200).json({
+                mensaje: `Tarea marcada como ${nuevoEstado}`,
+                tarea: tareaActualizada
+            });
+        } catch (error) {
+            res.status(500).json({ error: 'Error al alternar el estado de la tarea', detalles: error.message });
+        }
     }
+    
+    
 };
 
 module.exports = ActividadesController;

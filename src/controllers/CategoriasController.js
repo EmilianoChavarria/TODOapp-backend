@@ -27,12 +27,20 @@ const CategoriasController = {
     getByUser: async (req, res) => {
         try {
             const { usuarioId } = req.params;
-            const categorias = await db('categorias').where({ usuario_id: usuarioId });
-    
+
+            const categorias = await db('categorias')
+                .leftJoin('tareas', 'categorias.id', 'tareas.categoria_id')
+                .where('categorias.usuario_id', usuarioId)
+                .select(
+                    'categorias.*',
+                    db.raw('COUNT(tareas.id) as count')
+                )
+                .groupBy('categorias.id');
+
             if (categorias.length === 0) {
                 return res.status(404).json({ mensaje: 'No se encontraron categorías para este usuario' });
             }
-    
+
             res.status(200).json(categorias);
         } catch (error) {
             res.status(500).json({
@@ -41,7 +49,8 @@ const CategoriasController = {
             });
         }
     },
-    
+
+
     save: async (req, res) => {
         const schemaCategoria = Joi.object({
             nombre: Joi.string().max(100).required(),
@@ -92,7 +101,7 @@ const CategoriasController = {
             color: Joi.string().max(10).required(),
             usuarioId: Joi.number().required()
         });
-    
+
         const { error, value } = schemaCategoria.validate(req.body);
         if (error) {
             return res.status(400).json({
@@ -100,28 +109,28 @@ const CategoriasController = {
                 detalles: error.details.map(d => d.message)
             });
         }
-    
+
         try {
             const { id } = req.params;
             const existe = await db('categorias').where({ id }).first();
             if (!existe) {
                 return res.status(404).json({ error: 'Categoría no encontrada' });
             }
-    
+
             await db('categorias').where({ id }).update({
                 nombre: value.nombre,
                 descripcion: value.descripcion,
                 color: value.color,
                 usuarioId: value.usuarioId
             });
-    
+
             const actualizada = await db('categorias').where({ id }).first();
-    
+
             res.status(200).json({
                 mensaje: 'Categoría actualizada correctamente',
                 categoria: actualizada
             });
-    
+
         } catch (error) {
             res.status(500).json({
                 error: 'Error al actualizar la categoría',
@@ -133,13 +142,13 @@ const CategoriasController = {
         try {
             const { id } = req.params;
             const existe = await db('categorias').where({ id }).first();
-    
+
             if (!existe) {
                 return res.status(404).json({ error: 'Categoría no encontrada' });
             }
-    
+
             await db('categorias').where({ id }).del();
-    
+
             res.status(200).json({ mensaje: 'Categoría eliminada correctamente' });
         } catch (error) {
             res.status(500).json({
@@ -148,8 +157,8 @@ const CategoriasController = {
             });
         }
     }
-    
-    
+
+
 }
 
 module.exports = CategoriasController;

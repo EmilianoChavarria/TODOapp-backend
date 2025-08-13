@@ -11,53 +11,52 @@ const UsuarioController = {
       res.status(200).json(usuarios);
     } catch (error) {
       res.status(400).json({ error: error.message });
-
     }
   },
-  save: async (req, res) => {
-    const schemaUsuario = Joi.object({
-      nombre: Joi.string().max(100).required(),
-      email: Joi.string().email().max(100).required(),
-      contraseña: Joi.string().min(6).max(100).required(),
-      rol: Joi.string().valid('admin', 'usuario').default('usuario')
-    });
-
-    const { error, value } = schemaUsuario.validate(req.body);
-
-    if (error) {
-      return res.status(400).json({
-        error: 'Datos inválidos',
-        detalles: error.details.map(d => d.message)
+    save: async (req, res) => {
+      const schemaUsuario = Joi.object({
+        nombre: Joi.string().max(100).required(),
+        email: Joi.string().email().max(100).required(),
+        contraseña: Joi.string().min(6).max(100).required(),
+        rol: Joi.string().valid('admin', 'usuario').default('usuario')
       });
-    }
 
-    try {
-      const existe = await db('usuarios').where({ email: value.email }).first();
-      if (existe) {
-        return res.status(409).json({ error: 'El email ya está registrado' });
+      const { error, value } = schemaUsuario.validate(req.body);
+
+      if (error) {
+        return res.status(400).json({
+          error: 'Datos inválidos',
+          detalles: error.details.map(d => d.message)
+        });
       }
 
-      const contraseña_hash = await bcrypt.hash(value.contraseña, 10);
+      try {
+        const existe = await db('usuarios').where({ email: value.email }).first();
+        if (existe) {
+          return res.status(409).json({ error: 'El email ya está registrado' });
+        }
 
-      const [id] = await db('usuarios').insert({
-        nombre: value.nombre,
-        email: value.email,
-        contraseña_hash,
-        rol: value.rol
-      });
+        const contraseña_hash = await bcrypt.hash(value.contraseña, 10);
 
-      const nuevoUsuario = await db('usuarios').where({ id }).first();
+        const [id] = await db('usuarios').insert({
+          nombre: value.nombre,
+          email: value.email,
+          contraseña_hash,
+          rol: value.rol
+        });
 
-      delete nuevoUsuario.contraseña_hash;
-      res.status(201).json({ detalles: 'Usuario creado correctamente', usuario: nuevoUsuario });
+        const nuevoUsuario = await db('usuarios').where({ id }).first();
 
-    } catch (err) {
-      res.status(400).json({
-        error: 'Error al crear usuario',
-        detalles: err.message
-      });
-    }
-  },
+        delete nuevoUsuario.contraseña_hash;
+        res.status(201).json({ detalles: 'Usuario creado correctamente', usuario: nuevoUsuario });
+
+      } catch (err) {
+        res.status(400).json({
+          error: 'Error al crear usuario',
+          detalles: err.message
+        });
+      }
+    },
   findOne: async (req, res) => {
     try {
       const usuario = await db('usuarios').where({ id: req.params.id }).first();
